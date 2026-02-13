@@ -351,8 +351,19 @@ function truncateOutput(raw: string, maxChars: number): { text: string; truncate
 
 function redactExecApprovals(file: ExecApprovalsFile): ExecApprovalsFile {
   const socketPath = file.socket?.path?.trim();
+  const { remoteWrite: _rw, ...defaults } = file.defaults ?? {};
+  const agents = file.agents
+    ? Object.fromEntries(
+        Object.entries(file.agents).map(([k, v]) => {
+          const { remoteWrite: _arw, ...rest } = v;
+          return [k, rest];
+        }),
+      )
+    : file.agents;
   return {
     ...file,
+    defaults: file.defaults ? defaults : undefined,
+    agents,
     socket: socketPath ? { path: socketPath } : undefined,
   };
 }

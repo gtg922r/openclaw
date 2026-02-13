@@ -18,7 +18,6 @@ export const ExecApprovalsDefaultsSchema = Type.Object(
     ask: Type.Optional(Type.String()),
     askFallback: Type.Optional(Type.String()),
     autoAllowSkills: Type.Optional(Type.Boolean()),
-    remoteWrite: Type.Optional(Type.Union([Type.Literal("allow"), Type.Literal("deny")])),
   },
   { additionalProperties: false },
 );
@@ -29,7 +28,6 @@ export const ExecApprovalsAgentSchema = Type.Object(
     ask: Type.Optional(Type.String()),
     askFallback: Type.Optional(Type.String()),
     autoAllowSkills: Type.Optional(Type.Boolean()),
-    remoteWrite: Type.Optional(Type.Union([Type.Literal("allow"), Type.Literal("deny")])),
     allowlist: Type.Optional(Type.Array(ExecApprovalsAllowlistEntrySchema)),
   },
   { additionalProperties: false },
