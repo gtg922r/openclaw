@@ -11,6 +11,7 @@ import {
   matchAllowlist,
   maxAsk,
   minSecurity,
+  isRemoteWriteAllowed,
   normalizeExecApprovals,
   normalizeSafeBins,
   requiresExecApproval,
@@ -774,5 +775,41 @@ describe("normalizeExecApprovals handles string allowlist entries (#9790)", () =
 
     const normalized = normalizeExecApprovals(file);
     expect(normalized.agents?.main?.allowlist).toBeUndefined();
+  });
+});
+
+describe("isRemoteWriteAllowed", () => {
+  it("returns true when remoteWrite is not set (default)", () => {
+    const file: ExecApprovalsFile = { version: 1, agents: {} };
+    expect(isRemoteWriteAllowed(file)).toBe(true);
+  });
+
+  it("returns true when remoteWrite is 'allow'", () => {
+    const file: ExecApprovalsFile = {
+      version: 1,
+      defaults: { remoteWrite: "allow" },
+      agents: {},
+    };
+    expect(isRemoteWriteAllowed(file)).toBe(true);
+  });
+
+  it("returns false when remoteWrite is 'deny'", () => {
+    const file: ExecApprovalsFile = {
+      version: 1,
+      defaults: { remoteWrite: "deny" },
+      agents: {},
+    };
+    expect(isRemoteWriteAllowed(file)).toBe(false);
+  });
+
+  it("preserves remoteWrite through normalization", () => {
+    const file: ExecApprovalsFile = {
+      version: 1,
+      defaults: { remoteWrite: "deny" },
+      agents: {},
+    };
+    const normalized = normalizeExecApprovals(file);
+    expect(normalized.defaults?.remoteWrite).toBe("deny");
+    expect(isRemoteWriteAllowed(normalized)).toBe(false);
   });
 });

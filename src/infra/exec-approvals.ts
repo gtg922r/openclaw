@@ -9,11 +9,14 @@ export type ExecHost = "sandbox" | "gateway" | "node";
 export type ExecSecurity = "deny" | "allowlist" | "full";
 export type ExecAsk = "off" | "on-miss" | "always";
 
+export type ExecRemoteWrite = "allow" | "deny";
+
 export type ExecApprovalsDefaults = {
   security?: ExecSecurity;
   ask?: ExecAsk;
   askFallback?: ExecSecurity;
   autoAllowSkills?: boolean;
+  remoteWrite?: ExecRemoteWrite;
 };
 
 export type ExecAllowlistEntry = {
@@ -208,6 +211,7 @@ export function normalizeExecApprovals(file: ExecApprovalsFile): ExecApprovalsFi
       ask: file.defaults?.ask,
       askFallback: file.defaults?.askFallback,
       autoAllowSkills: file.defaults?.autoAllowSkills,
+      remoteWrite: file.defaults?.remoteWrite,
     },
     agents,
   };
@@ -1529,7 +1533,11 @@ export function recordAllowlistUse(
   );
   agents[target] = { ...existing, allowlist: nextAllowlist };
   approvals.agents = agents;
-  saveExecApprovals(approvals);
+  try {
+    saveExecApprovals(approvals);
+  } catch {
+    // best-effort: don't fail command execution if we can't update lastUsedAt
+  }
 }
 
 export function addAllowlistEntry(
@@ -1552,6 +1560,11 @@ export function addAllowlistEntry(
   agents[target] = { ...existing, allowlist };
   approvals.agents = agents;
   saveExecApprovals(approvals);
+}
+
+export function isRemoteWriteAllowed(file: ExecApprovalsFile): boolean {
+  const value = file.defaults?.remoteWrite;
+  return value !== "deny";
 }
 
 export function minSecurity(a: ExecSecurity, b: ExecSecurity): ExecSecurity {

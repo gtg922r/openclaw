@@ -24,6 +24,7 @@ import {
   resolveExecApprovals,
   resolveSafeBins,
   ensureExecApprovals,
+  isRemoteWriteAllowed,
   readExecApprovalsSnapshot,
   resolveExecApprovalsSocketPath,
   saveExecApprovals,
@@ -667,6 +668,11 @@ async function handleInvoke(
       }
       ensureExecApprovals();
       const snapshot = readExecApprovalsSnapshot();
+      if (!isRemoteWriteAllowed(snapshot.file)) {
+        throw new Error(
+          'PERMISSION_DENIED: remote writes to exec-approvals are denied (defaults.remoteWrite = "deny")',
+        );
+      }
       requireExecApprovalsBaseHash(params, snapshot);
       const normalized = normalizeExecApprovals(params.file);
       const currentSocketPath = snapshot.file.socket?.path?.trim();
