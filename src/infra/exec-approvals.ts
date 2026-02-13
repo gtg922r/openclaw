@@ -359,6 +359,7 @@ export function resolveExecApprovalsFromFile(params: {
       fallbackAskFallback,
     ),
     autoAllowSkills: Boolean(defaults.autoAllowSkills ?? fallbackAutoAllowSkills),
+    remoteWrite: defaults.remoteWrite ?? "allow",
   };
   const resolvedAgent: Required<ExecApprovalsDefaults> = {
     security: normalizeSecurity(
@@ -373,6 +374,7 @@ export function resolveExecApprovalsFromFile(params: {
     autoAllowSkills: Boolean(
       agent.autoAllowSkills ?? wildcard.autoAllowSkills ?? resolvedDefaults.autoAllowSkills,
     ),
+    remoteWrite: agent.remoteWrite ?? wildcard.remoteWrite ?? resolvedDefaults.remoteWrite,
   };
   const allowlist = [
     ...(Array.isArray(wildcard.allowlist) ? wildcard.allowlist : []),
